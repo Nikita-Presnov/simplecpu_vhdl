@@ -102,7 +102,7 @@ cpu : RV32
 
 -- Clock and reset generation
 clk <= not clk after CLK_PERIOD/2;
-rst <= '0' after CLK_PERIOD*10;
+rst <= '0' after CLK_PERIOD*2;
 
 -- Read and write data from memory bus
 DATA_MEM : process(rst, mem_we, mem_addr, mem_data_out)
