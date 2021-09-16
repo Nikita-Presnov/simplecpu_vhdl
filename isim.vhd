@@ -68,7 +68,7 @@ BEGin
         );
 
    -- Clock process definitions
-   CLK_process :process
+   CLK_process : process
    begin
 		CLK <= '0';
 		wait for CLK_period/2;

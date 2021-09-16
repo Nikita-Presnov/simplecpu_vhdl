@@ -33,8 +33,8 @@ architecture core of RV32 is
   signal rex_x : registr_type :=(
     0 => X"00000000",
     1 => X"00000000",
-    2 => X"00000008",
-    3 => X"00000003"
+    2 => X"00000000",
+    3 => X"00000000"
   );
   signal debug : integer := 0;
 
@@ -58,27 +58,42 @@ begin
                 rex_x(ToInt(instr_data_i(19 downto 15)))
                 + instr_data_i(31 downto 20);
             when "111" => -- andi
-              -- rex_x(ToInt(instr_data_i(11 downto 7))) <=
-              --   rex_x(ToInt(instr_data_i(19 downto 15))) and 
-              --   instr_data_i(31 downto 20);
+              rex_x(ToInt(instr_data_i(11 downto 7))) <=
+                rex_x(ToInt(instr_data_i(19 downto 15)))
+                and (instr_data_i(31 downto 20) + X"00000000");
               reg_deb <=
                 rex_x(ToInt(instr_data_i(19 downto 15)))
-                and instr_data_i(31 downto 20);
+                and (instr_data_i(31 downto 20) + X"00000000");
               -- rex_x(ToInt(instr_data_i(11 downto 7))) <= X"11111111";
               --  1000 0000 0000 0000 0000 0000 0000 0000
             when others =>
               null;
           end case;
+
         when "01000" => -- S-type, memory
-        case instr_data_i(14 downto 12) is
-          when "010" => -- sw
-          when others =>
-            null;
+          case instr_data_i(14 downto 12) is
+            when "010" => -- sw
+              mem_we_o <= '1';
+              mem_addr_o <= 
+                rex_x(ToInt(instr_data_i(19 downto 15)))
+                + instr_data_i(31 downto 20);
+              mem_data_o <= 
+              rex_x(ToInt(instr_data_i(11 downto 7)));
+              mem_we_o <= '0';
+            when others =>
+              null;
           end case;
 
-        when "00000" => -- I-type
+        when "00000" => -- I-type, memory
           case instr_data_i(14 downto 12) is
             when "010" => -- lw
+            mem_addr_o <=
+              rex_x(ToInt(instr_data_i(19 downto 15)))
+              + instr_data_i(31 downto 20);
+            reg_deb <=
+              mem_data_i;
+            rex_x(ToInt(instr_data_i(11 downto 7))) <=
+              mem_data_i;
             when others =>
               null;
             end case;
