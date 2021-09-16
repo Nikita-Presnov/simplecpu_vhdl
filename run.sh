@@ -10,5 +10,5 @@ ghdl -a --std=08 -fsynopsys rv32_tb.vhd
 echo "elaborate rv32_tb.vhd" 
 ghdl -e --std=08 -fsynopsys rv32_tb
 echo "run sim"
-ghdl -r --std=08 -fsynopsys rv32_tb --vcd=output.vcd --stop-time=100ns
+ghdl -r --std=08 -fsynopsys rv32_tb --vcd=output.vcd --stop-time=200ns
 # gtkwave output.vcd > /dev/null 2>&1

@@ -41,71 +41,80 @@ architecture core of RV32 is
 begin
   process(clk_i)
   begin
-    if instr_data_i(1 downto 0) = "11" then -- if it is a command
-      case instr_data_i(6 downto 2) is
-        when "00100" => -- I-type
-          case instr_data_i(14 downto 12) is
-            when "000" => -- addi
-              if clk_i = '1' then
-                reg_deb <=
-                  rex_x(ToInt(instr_data_i(19 downto 15)))
-                  + instr_data_i(31 downto 20);
-                rex_x(ToInt(instr_data_i(11 downto 7))) <=
-                  rex_x(ToInt(instr_data_i(19 downto 15)))
-                  + instr_data_i(31 downto 20);
-              end if;
-            when "111" => -- andi
-              if clk_i = '1' then
-                rex_x(ToInt(instr_data_i(11 downto 7))) <=
-                  rex_x(ToInt(instr_data_i(19 downto 15)))
-                  and (instr_data_i(31 downto 20) + X"00000000");
-                reg_deb <=
-                  rex_x(ToInt(instr_data_i(19 downto 15)))
-                  and (instr_data_i(31 downto 20) + X"00000000");
-              end if;
-            when others =>
-              null;
-          end case;
-
-        when "01000" => -- S-type, memory
-          case instr_data_i(14 downto 12) is
-            when "010" => -- sw
-              -- mem_we_o <= '1';
-              -- mem_addr_o <= 
-              --   rex_x(ToInt(instr_data_i(19 downto 15)))
-              --   + instr_data_i(31 downto 20);
-              -- mem_data_o <= 
-              -- rex_x(ToInt(instr_data_i(11 downto 7)));
-              -- mem_we_o <= '0';
-            when others =>
-              null;
-          end case;
-
-        when "00000" => -- I-type, memory
-          case instr_data_i(14 downto 12) is
-            when "010" => -- lw
-              if clk_i = '1' then
-                mem_addr_o <=
-                rex_x(ToInt(instr_data_i(19 downto 15)))
-                + instr_data_i(31 downto 20);
-              else
-                reg_deb <=
-                  mem_data_i;
-                rex_x(ToInt(instr_data_i(11 downto 7))) <=
-                  mem_data_i;
-              end if;
-            when others =>
-              null;
+    if rst_i = '0' then -- rst 0 chek
+      -- wait on rst_i;
+      if instr_data_i(1 downto 0) = "11" then -- if it is a command
+        case instr_data_i(6 downto 2) is
+          when "00100" => -- I-type
+            case instr_data_i(14 downto 12) is
+              when "000" => -- addi
+                if clk_i = '1' then
+                  reg_deb <=
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    + instr_data_i(31 downto 20);
+                  rex_x(ToInt(instr_data_i(11 downto 7))) <=
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    + instr_data_i(31 downto 20);
+                end if;
+              when "111" => -- andi
+                if clk_i = '1' then
+                  rex_x(ToInt(instr_data_i(11 downto 7))) <=
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    and (instr_data_i(31 downto 20) + X"00000000");
+                  reg_deb <=
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    and (instr_data_i(31 downto 20) + X"00000000");
+                end if;
+              when others =>
+                null;
             end case;
-        when others =>
-          null;
-      end case; 
-    end if;
-    if clk_i = '0' then
-      instr_addr_o <= instr_addr_buf;
-      instr_addr_buf <= instr_addr_buf + 4;
-    end if;
+
+          when "01000" => -- S-type, memory
+            case instr_data_i(14 downto 12) is
+              when "010" => -- sw
+                -- mem_we_o <= '1';
+                -- mem_addr_o <= 
+                --   rex_x(ToInt(instr_data_i(19 downto 15)))
+                --   + instr_data_i(31 downto 20);
+                -- mem_data_o <= 
+                -- rex_x(ToInt(instr_data_i(11 downto 7)));
+                -- mem_we_o <= '0';
+              when others =>
+                null;
+            end case;
+
+          when "00000" => -- I-type, memory
+            case instr_data_i(14 downto 12) is
+              when "010" => -- lw
+                if clk_i = '1' then
+                  mem_addr_o <=
+                  rex_x(ToInt(instr_data_i(19 downto 15)))
+                  + instr_data_i(31 downto 20);
+                else
+                  reg_deb <=
+                    mem_data_i;
+                  rex_x(ToInt(instr_data_i(11 downto 7))) <=
+                    mem_data_i;
+                end if;
+              when others =>
+                null;
+              end case;
+          when others =>
+            null;
+        end case; 
+      end if;
+      if clk_i = '0' then
+        instr_addr_o <= instr_addr_buf;
+        instr_addr_buf <= instr_addr_buf + 4;
+      end if;
+    else
+      instr_addr_o <= X"00000000";
+      mem_addr_o <= X"00000000";
+      mem_data_o <= X"00000000";
       
+      mem_we_o <= '0';
+
+    end if;-- rst 0 chek
       -- instr_addr_o <= instr_addr_o + 4;
 
   end process;
