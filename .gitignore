@@ -1,2 +1,4 @@
 output.vcd
 *.cf
+vhdl_ls.toml
+.vscode/
