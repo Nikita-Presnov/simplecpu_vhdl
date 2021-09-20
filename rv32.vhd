@@ -44,7 +44,6 @@ begin
   process(clk_i)
   begin
     if rst_i = '0' then -- rst 0 chek
-      -- wait on rst_i;
       if instr_data_i(1 downto 0) = "11" then -- if it is a command
         case instr_data_i(6 downto 2) is
           when "00100" => -- I-type
@@ -74,7 +73,7 @@ begin
           when "01000" => -- S-type, memory
             case instr_data_i(14 downto 12) is
               when "010" => -- sw
-                if clk_i = '1' then
+                if clk_i = '0' then
                   mem_we_o <= '1';
                   mem_addr_o <= 
                     rex_x(ToInt(instr_data_i(19 downto 15)))
