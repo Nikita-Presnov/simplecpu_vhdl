@@ -74,14 +74,14 @@ begin
             case instr_data_i(14 downto 12) is
               when "010" => -- sw
                 if clk_i = '0' then
+                  mem_we_o <= '0';
+                else
                   mem_we_o <= '1';
                   mem_addr_o <= 
                     rex_x(ToInt(instr_data_i(19 downto 15)))
                     + (instr_data_i(31 downto 25)*"100000" + instr_data_i(11 downto 7));
-                else
                   mem_data_o <= 
                     rex_x(ToInt(instr_data_i(24 downto 20)));
-                    mem_we_o <= '0';
                 end if;
               when others =>
                 null;
