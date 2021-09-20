@@ -29,7 +29,9 @@ architecture core of RV32 is
   -- signal reg_x1 : std_logic_vector(31 downto 0);
   -- signal reg_x2 : std_logic_vector(31 downto 0);
   -- signal reg_x3 : std_logic_vector(31 downto 0);
-  type registr_type is array (0 to 3) of std_logic_vector(31 downto 0);
+  constant REGNUMBER : integer := 4;
+  
+  type registr_type is array (0 to REGNUMBER-1) of std_logic_vector(31 downto 0);
   signal rex_x : registr_type :=(
     0 => X"00000000",
     1 => X"00000000",
@@ -72,13 +74,16 @@ begin
           when "01000" => -- S-type, memory
             case instr_data_i(14 downto 12) is
               when "010" => -- sw
-                -- mem_we_o <= '1';
-                -- mem_addr_o <= 
-                --   rex_x(ToInt(instr_data_i(19 downto 15)))
-                --   + instr_data_i(31 downto 20);
-                -- mem_data_o <= 
-                -- rex_x(ToInt(instr_data_i(11 downto 7)));
-                -- mem_we_o <= '0';
+                if clk_i = '1' then
+                  mem_we_o <= '1';
+                  mem_addr_o <= 
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    + (instr_data_i(31 downto 25)*"100000" + instr_data_i(11 downto 7));
+                else
+                  mem_data_o <= 
+                    rex_x(ToInt(instr_data_i(24 downto 20)));
+                    mem_we_o <= '0';
+                end if;
               when others =>
                 null;
             end case;
@@ -88,8 +93,8 @@ begin
               when "010" => -- lw
                 if clk_i = '1' then
                   mem_addr_o <=
-                  rex_x(ToInt(instr_data_i(19 downto 15)))
-                  + instr_data_i(31 downto 20);
+                    rex_x(ToInt(instr_data_i(19 downto 15)))
+                    + instr_data_i(31 downto 20);
                 else
                   reg_deb <=
                     mem_data_i;
@@ -111,11 +116,12 @@ begin
       instr_addr_o <= X"00000000";
       mem_addr_o <= X"00000000";
       mem_data_o <= X"00000000";
-      
+
       mem_we_o <= '0';
+      for i in 0 to REGNUMBER-1 loop
+        rex_x(i) <= X"00000000";      
+      end loop;
 
     end if;-- rst 0 chek
-      -- instr_addr_o <= instr_addr_o + 4;
-
   end process;
 end core;
