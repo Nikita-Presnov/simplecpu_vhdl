@@ -94,7 +94,7 @@ begin
                   mem_addr_o <=
                     rex_x(ToInt(instr_data_i(19 downto 15)))
                     + instr_data_i(31 downto 20);
-                else
+                -- else
                   reg_deb <=
                     mem_data_i;
                   rex_x(ToInt(instr_data_i(11 downto 7))) <=
