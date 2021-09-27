@@ -5,7 +5,3 @@ proj.files = [
   'rv32.vhd',
   'rv32_tb.vhd',
 ]
-test.files = [
-  'main.vhd',
-  'isim.vhd',
-]
