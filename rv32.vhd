@@ -86,10 +86,10 @@ begin
             when "00000" => -- I-type, memory
               case instr_data_i(14 downto 12) is
                 when "010" => -- lw
+                  mem_we_o <= '0';
                   mem_addr_o <=
                     rex_x(ToInt(instr_data_i(19 downto 15)))
                     + instr_data_i(31 downto 20);
-                -- else
                   reg_deb <=
                     mem_data_i;
                   rex_x(ToInt(instr_data_i(11 downto 7))) <=
@@ -101,10 +101,14 @@ begin
               null;
           end case; 
         end if;
-        -- if clk_i = '0' then
-        --   instr_addr_o <= instr_addr_buf;
-        --   instr_addr_buf <= instr_addr_buf + 4;
-        -- end if;
+        if not(instr_data_i(1 downto 0) = "11" and
+          instr_data_i(6 downto 2) = "01000" and
+          instr_data_i(14 downto 12) = "010") then
+          
+          mem_we_o <= '0';
+        end if;
+        instr_addr_o <= instr_addr_buf;
+        instr_addr_buf <= instr_addr_buf + 4;
       else
         instr_addr_o <= X"00000000";
         mem_addr_o <= X"00000000";
@@ -117,12 +121,12 @@ begin
 
       end if;-- rst 0 chek
     end if;
-    if falling_edge(clk_i) then
-      if rst_i = '0' then -- rst 0 chek
-        instr_addr_o <= instr_addr_buf;
-        instr_addr_buf <= instr_addr_buf + 4;
-      end if;
-      mem_we_o <= '0';
-    end if;
+    -- if falling_edge(clk_i) then
+    --   if rst_i = '0' then -- rst 0 chek
+    --     instr_addr_o <= instr_addr_buf;
+    --     instr_addr_buf <= instr_addr_buf + 4;
+    --   end if;
+    --   mem_we_o <= '0';
+    -- end if;
   end process;
 end core;
